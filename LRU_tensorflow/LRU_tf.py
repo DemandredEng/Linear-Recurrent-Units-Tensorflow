@@ -3,9 +3,9 @@ import math
 import tensorflow_probability as tfp
 parallel_scan = tfp.math.scan_associative
 
-class LRULayer(tf.keras.layers.Layer):
+class LRU(tf.keras.layers.Layer):
     def __init__(self, N, H, r_min=0, r_max=1, max_phase=6.283):
-        super(LRULayer, self).__init__()
+        super(LRU, self).__init__()
         self.N = N
         self.H = H
         self.r_min = r_min
@@ -71,7 +71,7 @@ real_parts = tf.random.uniform(shape=(L, H), dtype=tf.float32)
 imaginary_parts = tf.random.uniform(shape=(L, H), dtype=tf.float32)
 input_sequence = tf.complex(real_parts, imaginary_parts)
 
-lru = LRULayer(N, H)
+lru = LRU(N, H)
 preds = lru(input_sequence)
 
 print(preds)
