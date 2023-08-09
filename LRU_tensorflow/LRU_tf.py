@@ -35,9 +35,9 @@ class LRU(tf.keras.layers.Layer):
     def binary_operator_diag(self, element_i, element_j):
         a_i, bu_i = element_i
         a_j, bu_j = element_j
-        return a_j * a_i, a_j * bu_i + bu_j
-    
-    def forward(self, input_sequence):
+        return a_j * a_i, a_j * bu_i + bu_j  
+
+    def call(self, input_sequence):
         nu_log, theta_log, B, C, D, gamma_log = self.lru_parameters
         # Materializing the diagonal of Lambda and projections
         Lambda = tf.math.exp(tf.complex(-tf.math.exp(nu_log), tf.math.exp(theta_log)))
@@ -58,10 +58,7 @@ class LRU(tf.keras.layers.Layer):
         D = tf.cast(D, tf.complex64)
         y = tf.vectorized_map(lambda args: tf.math.real(tf.linalg.matvec(C, args[0])) + tf.math.real(D * args[1]), (inner_states, input_sequence))
         return y
-
-    def call(self, input_sequence):
-        return self.forward(input_sequence)
-    
+        
 
 N = 5  # State dimension
 H = 3  # Model dimension
