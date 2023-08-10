@@ -7,7 +7,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 setup(
   name = 'LRU-tensorflow',         
   packages = ['LRU_tensorflow'],  
-  version = '0.1.0',     
+  version = '0.1.1',     
   license='MIT',       
   description = 'Unofficial TensorFlow implementation of a Linear Recurrent Unit, proposed by Google Deepmind.',
   long_description=long_description,
