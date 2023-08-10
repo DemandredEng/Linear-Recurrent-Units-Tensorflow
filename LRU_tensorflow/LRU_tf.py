@@ -15,7 +15,7 @@ class LRU(tf.keras.layers.Layer):
 
     def init_lru_parameters(self):
         # N: state dimension, H: model dimension
-        # Initialization of Lambda is complex valued distributed uniformly on ring between r_min and r_max, with phase in [0, max_phase].
+        # Initializating Lambda
         u1 = tf.random.uniform(shape = (self.N,))
         u2 = tf.random.uniform(shape = (self.N,))
         nu_log = tf.math.log(-0.5 * tf.math.log(u1 * (self.r_max**2 - self.r_min**2) + self.r_min**2))
@@ -48,6 +48,7 @@ class LRU(tf.keras.layers.Layer):
         Lambda_reshaped = tf.expand_dims(Lambda, axis=0)
         Lambda_elements = tf.repeat(Lambda_reshaped, repeats = input_sequence.shape[0], axis = 0)
 
+        # Converting real input sequences to a complex form
         if input_sequence.dtype.is_complex:
             input_sequence = input_sequence
         else:
