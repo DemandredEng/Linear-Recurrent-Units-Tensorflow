@@ -15,7 +15,7 @@ import tensorflow
 from LRU_tensorflow import LRU
 
 lru = LRU(N=state_features, H=input_size) 
-test_input = tf.random.uniform(batch_size, seq_length, input_size)  # Example Test Input
+test_input = tensorflow.random.uniform(batch_size, seq_length, input_size)  # Example Test Input
 predictions = lru(test_input) # Get predictions
 ```
 
