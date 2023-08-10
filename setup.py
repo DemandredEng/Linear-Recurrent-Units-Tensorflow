@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
   name = 'LRU-tensorflow',         
   packages = ['LRU_tensorflow'],  
-  version = '0.0.1',     
+  version = '0.1.0',     
   license='MIT',       
   description = 'Linear Recurrent Unit (LRU) - TensorFlow',  
   author = 'Udit Sharma',                  
@@ -15,7 +15,7 @@ setup(
           'tensorflow>=2.0'
       ],
   classifiers=[
-    'Development Status :: 1 - Planning',      
+    'Development Status :: 3 - Alpha',      
     'Intended Audience :: Developers',    
     'Topic :: Scientific/Engineering :: Artificial Intelligence',
     'License :: OSI Approved :: MIT License',
