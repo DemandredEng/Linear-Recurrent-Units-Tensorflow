@@ -63,3 +63,4 @@ class LRU(tf.keras.layers.Layer):
         D = tf.cast(D, tf.complex64)
         y = tf.vectorized_map(lambda args: tf.math.real(tf.linalg.matvec(C, args[0])) + tf.math.real(D * args[1]), (inner_states, input_sequence))
         return y
+
