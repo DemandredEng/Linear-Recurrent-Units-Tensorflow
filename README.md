@@ -11,7 +11,6 @@ $ pip install LRU-tensorflow
 # Usage:
 ```python
 import tensorflow as tf
-
 from LRU_tensorflow import LRU
 
 lru = LRU(N=state_features, H=input_size) 
