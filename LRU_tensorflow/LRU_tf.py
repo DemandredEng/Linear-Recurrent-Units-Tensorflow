@@ -6,6 +6,7 @@ parallel_scan = tfp.math.scan_associative
 class LRU(tf.keras.layers.Layer):
     def __init__(self, N, H, r_min=0, r_max=1, max_phase=6.283):
         super(LRU, self).__init__()
+        # Initialize layer parameters
         self.N = N
         self.H = H
         self.r_min = r_min
@@ -15,7 +16,7 @@ class LRU(tf.keras.layers.Layer):
 
     def init_lru_parameters(self):
         # N: state dimension, H: model dimension
-        # Initializating Lambda
+        # Initialization of Lambda is complex valued distributed uniformly on ring between r_min and r_max, with phase in [0, max_phase].
         u1 = tf.random.uniform(shape = (self.N,))
         u2 = tf.random.uniform(shape = (self.N,))
         nu_log = tf.math.log(-0.5 * tf.math.log(u1 * (self.r_max**2 - self.r_min**2) + self.r_min**2))
@@ -33,6 +34,7 @@ class LRU(tf.keras.layers.Layer):
         return nu_log, theta_log, B, C, D, gamma_log
     
     def binary_operator_diag(self, element_i, element_j):
+        # Binary operator for parallel scan of linear recurrence.
         a_i, bu_i = element_i
         a_j, bu_j = element_j
         return a_j * a_i, a_j * bu_i + bu_j
@@ -48,7 +50,7 @@ class LRU(tf.keras.layers.Layer):
         Lambda_reshaped = tf.expand_dims(Lambda, axis=0)
         Lambda_elements = tf.repeat(Lambda_reshaped, repeats = input_sequence.shape[0], axis = 0)
 
-        # Converting real input sequences to a complex form
+        # Convert real input sequences to complex form if needed
         if input_sequence.dtype.is_complex:
             input_sequence = input_sequence
         else:
