@@ -10,7 +10,7 @@ $ pip install LRU-tensorflow
 import tensorflow as tf
 from LRU_tensorflow import LRU
 
-lru = LRU(N=state_features, H=input_size) 
+lru = LRU(N=state_features, H=input_size) # N: state dimension, H: model dimension
 test_input = tf.random.uniform((batch_size, seq_length, input_size))  # Example Test Input
 predictions = lru(test_input) # Get predictions
 ```
