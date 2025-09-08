@@ -10,9 +10,24 @@ $ pip install LRU-tensorflow
 import tensorflow as tf
 from LRU_tensorflow import LRU
 
-lru = LRU(N=state_features, H=input_size) # N: state dimension, H: model dimension
-test_input = tf.random.uniform((batch_size, seq_length, input_size))  # Example Test Input
-predictions = lru(test_input) # Get predictions
+# Define model dimensions
+state_features = 19  # N: state dimension
+input_size     = 5   # H: model (input) dimension
+
+# Create LRU layer
+lru = LRU(N=state_features, H=input_size)
+
+# Prepare sample input: (batch_size, seq_length, input_size)
+batch_size = 32
+seq_length = 50
+test_input = tf.random.uniform((batch_size, seq_length, input_size))
+
+# Forward pass
+predictions = lru(test_input)
+
+# Output shape: (batch_size, seq_length, input_size)
+print(predictions.shape)
+# Expected: (32, 50, 5)
 ```
 
 # Paper:

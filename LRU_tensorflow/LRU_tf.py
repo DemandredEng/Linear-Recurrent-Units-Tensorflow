@@ -40,29 +40,32 @@ class LRU(tf.keras.layers.Layer):
         return a_j * a_i, a_j * bu_i + bu_j
     
     def call(self, input_sequence):
-        nu_log, theta_log, B, C, D, gamma_log = self.lru_parameters
-        # Materializing the diagonal of Lambda and projections
-        Lambda = tf.math.exp(tf.complex(-tf.math.exp(nu_log), tf.math.exp(theta_log)))
-        exp_gamma_log = tf.math.exp(tf.complex(tf.zeros_like(gamma_log), gamma_log))
-        B_norm = B * tf.expand_dims(exp_gamma_log, axis = -1)
+    nu_log, theta_log, B, C, D, gamma_log = self.lru_parameters
+    
+    # Get dynamic dimensions - CHANGE 1: Add dynamic shape handling
+    batch_size, seq_len = tf.shape(input_sequence)[0], tf.shape(input_sequence)[1]
+    
+    # Materializing the diagonal of Lambda and projections
+    Lambda = tf.math.exp(tf.complex(-tf.math.exp(nu_log), tf.math.exp(theta_log)))
+    exp_gamma_log = tf.math.exp(tf.complex(tf.zeros_like(gamma_log), gamma_log))
+    B_norm = B * tf.expand_dims(exp_gamma_log, axis = -1)
 
-        # Running the LRU + output projection
-        Lambda_reshaped = tf.expand_dims(Lambda, axis=0)
-        Lambda_elements = tf.repeat(Lambda_reshaped, repeats = input_sequence.shape[0], axis = 0)
-
-        # Convert real input sequences to complex form if needed
-        if input_sequence.dtype.is_complex:
-            input_sequence = input_sequence
-        else:
-            input_sequence = tf.complex(input_sequence, tf.zeros_like(input_sequence))
-
-        input_sequence_reshaped = tf.expand_dims(input_sequence, axis=-1)
-        Bu_elements = tf.vectorized_map(lambda u: tf.linalg.matmul(B_norm, u), input_sequence_reshaped)
-        Bu_elements = tf.squeeze(Bu_elements, axis=-1)
-
-        elements = (Lambda_elements, Bu_elements)
-        _, inner_states = parallel_scan(self.binary_operator_diag, elements)
-        D = tf.cast(D, tf.complex64)
-        y = tf.vectorized_map(lambda args: tf.math.real(tf.linalg.matvec(C, args[0])) + tf.math.real(D * args[1]), (inner_states, input_sequence))
-        return y
+    # Convert real input sequences to complex form if needed
+    if input_sequence.dtype.is_complex:
+        input_sequence_complex = input_sequence
+    else:
+        input_sequence_complex = tf.complex(input_sequence, tf.zeros_like(input_sequence))
+    
+    Bu_elements = tf.einsum('bth,nh->btn', input_sequence_complex, B_norm)
+    Lambda_elements = tf.broadcast_to(Lambda[None, None, :], [seq_len, batch_size, self.N])
+    Bu_elements_transposed = tf.transpose(Bu_elements, [1, 0, 2])
+    elements = (Lambda_elements, Bu_elements_transposed)
+    
+    _, inner_states = parallel_scan(self.binary_operator_diag, elements)
+    
+    inner_states = tf.transpose(inner_states, [1, 0, 2])
+    D = tf.cast(D, tf.complex64)
+    y = tf.einsum('btn,hn->bth', inner_states, C) + tf.expand_dims(tf.expand_dims(D, 0), 0) * input_sequence_complex
+    
+    return tf.math.real(y)
 
